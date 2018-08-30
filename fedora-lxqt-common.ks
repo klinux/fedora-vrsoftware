@@ -10,12 +10,20 @@
 %packages
 @lxqt
 @lxqt-apps
-@lxqt-media
 @networkmanager-submodules
+@basic-desktop
+@critical-path-apps
+@critical-path-base
+@critical-path-lxqt
+@legacy-software-support
+@lxqt-apps
+@lxqt-desktop
+@networkmanager-submodules
+@system-tools
+@workstation-product
 
 # for nm applet
 gnome-keyring
-
 
 # l10n
 lxqt-l10n
@@ -47,5 +55,28 @@ wqy-microhei-fonts          # a compact CJK font, to replace:
 # Fix https://bugzilla.redhat.com/show_bug.cgi?id=1429132
 # Why is this not pulled in by anaconda???
 storaged
+
+# Custom Packages
+dejavu-lgc-sans-fonts
+dejavu-lgc-sans-mono-fonts
+dejavu-lgc-serif-fonts
+dracut-config-generic
+hddtemp
+hdparm
+htop
+rdesktop
+-BackupPC
+-NetworkManager-l2tp
+-NetworkManager-libreswan
+-NetworkManager-openconnect
+-NetworkManager-openvpn
+-NetworkManager-vpnc
+-bonnie++
+-jigdo
+-openconnect
+-openvpn
+-thunderbird
+-tigervnc
+-vpnc
 
 %end

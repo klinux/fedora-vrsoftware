@@ -7,19 +7,41 @@
 # Does includes "default" language configuration (kickstarts including
 # this template can override these settings)
 
-lang en_US.UTF-8
-keyboard us
-timezone US/Eastern
+# System language
+lang pt_BR
+
+# Keyboard layouts
+keyboard 'br-abnt2'
+
+# System timezone
+timezone America/Sao_Paulo
+
+# Password file auth
 auth --useshadow --passalgo=sha512
-selinux --enforcing
-firewall --enabled --service=mdns
+
+# SELinux configuration
+selinux --disabled
+
+# Firewall configuration
+firewall --disabled
+
 xconfig --startxonboot
 zerombr
 clearpart --all
-part / --size 5120 --fstype ext4
+
+# Disk partitioning information
+part /boot --asprimary --fstype="ext4" --size=1024
+part swap --fstype="swap" --recommended
+part / --fstype="ext4" --grow --size=1
+
+# Services
 services --enabled=NetworkManager,ModemManager --disabled=sshd
+
+# Network information
 network --bootproto=dhcp --device=link --activate
-rootpw --lock --iscrypted locked
+
+# Root password - Default pdv
+rootpw --iscrypted $1$itOcV1pW$YcZ8FFpLojP999mIAMjAd.
 shutdown
 
 # Repos
@@ -35,8 +57,6 @@ url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$relea
 @core
 @fonts
 @input-methods
-@dial-up
-@multimedia
 @hardware-support
 @printing
 

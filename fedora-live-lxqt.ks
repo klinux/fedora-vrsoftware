@@ -47,6 +47,19 @@ restorecon -R /home/liveuser/
 
 EOF
 
+%end
+
+%post --nochroot
 # adicionar arquivos pdv
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/pdv/* $LIVE_ROOT/pdv/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/lib/* $LIVE_ROOT/pdv_instalacao/lib/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/epson/* $LIVE_ROOT/pdv_instalacao/epson/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/sitef/CliSiTef.ini $LIVE_ROOT/pdv_instalacao/sitef/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/jre-7u65-linux-i586.rpm $LIVE_ROOT/pdv_instalacao/tools/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/anydesk-4.0.0-1.fc24.i686.rpm $LIVE_ROOT/pdv_instalacao/tools/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/scripts/* $LIVE_ROOT/pdv_instalacao/scripts/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/firebird/* $LIVE_ROOT/pdv_instalacao/firebird/
+cp -r $INSTALL_ROOT/$(pwd)/vrpdv_instalacao/vrpdv.desktop $LIVE_ROOT/pdv_instalacao/links/vrpdv.desktop
+
 
 %end
