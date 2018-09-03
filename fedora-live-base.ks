@@ -8,7 +8,7 @@
 # this template can override these settings)
 
 # System language
-lang pt_BR
+lang pt_BR.UTF-8
 
 # Keyboard layouts
 keyboard 'br-abnt2'
@@ -29,19 +29,18 @@ xconfig --startxonboot
 zerombr
 clearpart --all
 
-# Disk partitioning information
-part /boot --asprimary --fstype="ext4" --size=1024
-part swap --fstype="swap" --recommended
-part / --fstype="ext4" --grow --size=1
+# Partitions
+part / --size 5120 --fstype ext4
 
 # Services
-services --enabled=NetworkManager,ModemManager --disabled=sshd
+services --enabled=NetworkManager,ModemManager,sshd
 
 # Network information
 network --bootproto=dhcp --device=link --activate
 
-# Root password - Default pdv
-rootpw --iscrypted $1$itOcV1pW$YcZ8FFpLojP999mIAMjAd.
+# Root password
+rootpw --lock --iscrypted locked
+
 shutdown
 
 # Repos
@@ -52,13 +51,11 @@ url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$relea
 
 %packages
 @base-x
-@guest-desktop-agents
 @standard
 @core
 @fonts
 @input-methods
 @hardware-support
-@printing
 
 # Explicitly specified here:
 # <notting> walters: because otherwise dependency loops cause yum issues.
@@ -84,6 +81,20 @@ syslinux
 
 # anaconda needs the locales available to run for different locales
 glibc-all-langpacks
+
+# Pacotes necessarios
+curl
+cabextract
+xorg-x11-font-utils
+fontconfig
+pangox-compat
+ncurses-compat-libs
+mesa-libGLU
+gtkglext-libs
+ntsysv
+java-1.8.0-openjdk
+gedit
+sddm-themes
 %end
 
 %post
@@ -355,16 +366,70 @@ rm -f /boot/*-rescue*
 rm -f /etc/machine-id
 touch /etc/machine-id
 
+# Instalacao de pacotes locais
+rpm -ivh /pdv_instalacao/anydesk-4.0.0-1.fc24.i686.rpm
+rpm -ivh /pdv_instalacao/FirebirdCS-2.5.8.27089-0.i686.rpm
+
+# Configuracao do Firebird
+cp /pdv_instalacao/iniciar/firebird /etc/init.d/
+chmod 755 /etc/init.d/firebird
+cp /pdv_instalacao/iniciar/firebird.conf /opt/firebird/
+chkconfig --add /etc/init.d/firebird
+
+# Subindo libs
+cp -r /pdv_instalacao/lib/* /usr/lib/
+
+# Copinando as rules do udev
+cp -r /pdv_instalacao/iniciar/vr.rules /etc/udev/rules.d/
+cp /pdv_instalacao/iniciar/40-veridis-biometric.rules /etc/udev/rules.d/
+
+# Copiando os arquivos pra forcar a resolucao
+cp /pdv_instalacao/forceresolution.desktop /etc/xdg/autostart/
+cp /pdv_instalacao/forceresolution.sh /pdv/
+
 %end
 
-
 %post --nochroot
-cp $INSTALL_ROOT/usr/share/licenses/*-release/* $LIVE_ROOT/
 
 # only works on x86, x86_64
 if [ "$(uname -i)" = "i386" -o "$(uname -i)" = "x86_64" ]; then
   if [ ! -d $LIVE_ROOT/LiveOS ]; then mkdir -p $LIVE_ROOT/LiveOS ; fi
   cp /usr/bin/livecd-iso-to-disk $LIVE_ROOT/LiveOS
 fi
+
+# Criar estrutura do VRPdv
+mkdir $INSTALL_ROOT/pdv_vr
+mkdir $INSTALL_ROOT/SAT
+mkdir $INSTALL_ROOT/pdv
+mkdir -p $INSTALL_ROOT/vr
+mkdir -p $INSTALL_ROOT/pdv_instalacao
+
+# Copiando arquivos necessarios para a instalacao
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/pdv/* $INSTALL_ROOT/pdv/
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/lib $INSTALL_ROOT/pdv_instalacao/
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/epson $INSTALL_ROOT/pdv_instalacao/
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/sitef $INSTALL_ROOT/pdv_instalacao/
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/driver $INSTALL_ROOT/pdv_instalacao/
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/anydesk-4.0.0-1.fc24.i686.rpm $INSTALL_ROOT/pdv_instalacao/
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/FirebirdCS-2.5.8.27089-0.i686.rpm $INSTALL_ROOT/pdv_instalacao/
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar $INSTALL_ROOT/pdv_instalacao/
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user $INSTALL_ROOT/pdv_instalacao/
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/VRPdv.desktop $INSTALL_ROOT/pdv_instalacao/
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/pdvinstall $INSTALL_ROOT/
+
+# Configurando um resolv.conf
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/resolv.conf $INSTALL_ROOT/etc/resolv.conf
+
+# Copiando as definicoes de desktop para o /etc/skel
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/.* $INSTALL_ROOT/etc/skel/
+
+# Copiando Background
+cp ~/Dados/fedora-vrsoftware/vrpdv_instalacaoimg/background.png $INSTALL_ROOT/usr/share/backgrounds/
+
+# Instalando fonts Microsoft
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/msttcore $INSTALL_ROOT/usr/share/fonts/
+
+# Configurando o sddm
+cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/sddm.conf $INSTALL_ROOT/etc/sddm.conf
 
 %end
