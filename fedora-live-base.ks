@@ -38,8 +38,9 @@ services --enabled=NetworkManager,ModemManager,sshd
 # Network information
 network --bootproto=dhcp --device=link --activate
 
-# Root password
-rootpw --lock --iscrypted locked
+# Root password, default pdv
+# rootpw --lock --iscrypted locked
+rootpw --iscrypted $1$8RwFXZdD$6yjl8psLBQR0AosTi.iXW/
 
 shutdown
 
