@@ -18,4 +18,25 @@
 -xsane-gimp
 -sane-backends
 
+# Custom remove
+-BackupPC
+-fprintd
+-httpd
+-NetworkManager-bluetooth
+-NetworkManager-libreswan
+-NetworkManager-openconnect
+-NetworkManager-openvpn
+-NetworkManager-vpnc
+-NetworkManager-wwan
+-dnsmasq
+-firewalld
+-iptables
+-jigdo
+-libreswan
+-openconnect
+-openvpn
+-tigervnc
+-usb_modeswitch
+-vpnc
+
 %end

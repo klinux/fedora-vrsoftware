@@ -1,2 +1,2 @@
 # fedora-vrsoftware
- Spinning Kickstart Fedora LXQT VRSoftware PDV
+ Spinning Kickstart Fedora LXDE VRSoftware PDV

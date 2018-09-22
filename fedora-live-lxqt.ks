@@ -16,16 +16,16 @@
 cat >> /etc/rc.d/init.d/livesys << EOF
 
 # set up autologin for user liveuser
-if [ -f /etc/sddm.conf ]; then
-sed -i 's/^#User=.*/User=liveuser/' /etc/sddm.conf
-sed -i 's/^#Session=.*/Session=lxqt.desktop/' /etc/sddm.conf
-else
-cat > /etc/sddm.conf << SDDM_EOF
-[Autologin]
-User=liveuser
-Session=lxqt.desktop
-SDDM_EOF
-fi
+#if [ -f /etc/sddm.conf ]; then
+#sed -i 's/^#User=.*/User=liveuser/' /etc/sddm.conf
+#sed -i 's/^#Session=.*/Session=lxqt.desktop/' /etc/sddm.conf
+#else
+#cat > /etc/sddm.conf << SDDM_EOF
+#[Autologin]
+#User=liveuser
+#Session=lxqt.desktop
+#SDDM_EOF
+#fi
 
 # show liveinst.desktop on desktop and in menu
 sed -i 's/NoDisplay=true/NoDisplay=false/' /usr/share/applications/liveinst.desktop

@@ -4,8 +4,8 @@
 #
 
 # vars
-ISO_FILENAME="Fedora-LXQt-Live.iso"
-ISO_LABEL="Fedora-LXQt-Live-28-1-1"
+ISO_FILENAME="Fedora-i386-28.iso"
+ISO_LABEL="Fedora-i386-28"
 
 echo -n "Gerando novo ISO: "
 sudo genisoimage -U -r -v -T -J -joliet-long -V $ISO_LABEL \

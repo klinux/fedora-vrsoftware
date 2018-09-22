@@ -25,6 +25,9 @@ selinux --disabled
 # Firewall configuration
 firewall --disabled
 
+# disable firstboot
+firstboot --disabled
+
 xconfig --startxonboot
 zerombr
 clearpart --all
@@ -39,8 +42,7 @@ services --enabled=NetworkManager,ModemManager,sshd
 network --bootproto=dhcp --device=link --activate
 
 # Root password, default pdv
-# rootpw --lock --iscrypted locked
-rootpw --iscrypted $1$8RwFXZdD$6yjl8psLBQR0AosTi.iXW/
+rootpw --plaintext pdv
 
 shutdown
 
@@ -52,10 +54,12 @@ url --mirrorlist=https://mirrors.fedoraproject.org/mirrorlist?repo=fedora-$relea
 
 %packages
 @base-x
+@guest-desktop-agents
 @standard
 @core
 @fonts
 @input-methods
+@dial-up
 @hardware-support
 
 # Explicitly specified here:
@@ -95,7 +99,73 @@ gtkglext-libs
 ntsysv
 java-1.8.0-openjdk
 gedit
-sddm-themes
+gtk-murrine-engine
+%end
+
+%post --nochroot
+
+cp $INSTALL_ROOT/usr/share/licenses/*-release/* $LIVE_ROOT/
+
+# only works on x86, x86_64
+if [ "$(uname -i)" = "i386" -o "$(uname -i)" = "x86_64" ]; then
+  if [ ! -d $LIVE_ROOT/LiveOS ]; then mkdir -p $LIVE_ROOT/LiveOS ; fi
+  cp /usr/bin/livecd-iso-to-disk $LIVE_ROOT/LiveOS
+fi
+
+# Configurando o isolinux.cfg
+cp cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/isolinux.cfg $LIVE_ROOT/isolinux/
+
+# Criar estrutura do VRPdv
+mkdir $INSTALL_ROOT/pdv_vr
+mkdir $INSTALL_ROOT/SAT
+mkdir $INSTALL_ROOT/pdv
+mkdir -p $INSTALL_ROOT/vr
+mkdir -p $INSTALL_ROOT/pdv_instalacao
+
+# Copiando arquivos necessarios para a instalacao
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/pdv/* $INSTALL_ROOT/pdv/
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/lib $INSTALL_ROOT/pdv_instalacao/
+# cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/epson $INSTALL_ROOT/pdv_instalacao/
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/sitef $INSTALL_ROOT/pdv_instalacao/
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/driver $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/anydesk-4.0.0-1.fc24.i686.rpm $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/FirebirdCS-2.5.8.27089-0.i686.rpm $INSTALL_ROOT/pdv_instalacao/
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar $INSTALL_ROOT/pdv_instalacao/
+# cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/VRPdv.desktop $INSTALL_ROOT/pdv/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/anydesk.desktop $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/VRPdv.jar $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/VRFramework.jar $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/VRLib.jar $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/VR.FDB $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/vr.properties $INSTALL_ROOT/pdv_instalacao/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/pdvinstall $INSTALL_ROOT/
+
+# Configurando o sudoers para nao pedir senha
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/sudoers $INSTALL_ROOT/etc/sudoers
+
+# Copiando as definicoes de desktop para o /etc/skel
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/.config $INSTALL_ROOT/etc/skel/
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/.icons $INSTALL_ROOT/etc/skel/
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/.themes $INSTALL_ROOT/etc/skel/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/.xscreensaver $INSTALL_ROOT/etc/skel/
+
+# Configurando o sddm ou o lxdm
+# cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/sddm.conf $INSTALL_ROOT/etc/sddm.conf
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/lxdm.conf $INSTALL_ROOT/etc/lxdm/lxdm.conf
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/lxdm/sj $INSTALL_ROOT/usr/share/lxdm/themes/
+
+# Copiando Background
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/img/background.png $INSTALL_ROOT/usr/share/backgrounds/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/img/lxde-icon.png $INSTALL_ROOT/usr/share/lxde/images/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/img/fedora-logo.png $INSTALL_ROOT/usr/share/pixmaps/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/img/fedora-logo-small.png $INSTALL_ROOT/usr/share/pixmaps/
+cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/img/system-logo-white.png $INSTALL_ROOT/usr/share/pixmaps/
+# cp /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/img/helix.svg $INSTALL_ROOT/usr/share/lxqt/graphics/helix.svg
+
+# Instalando fonts Microsoft
+cp -r /home/kleber/Dados/fedora-vrsoftware/vrpdv_instalacao/msttcore $INSTALL_ROOT/usr/share/fonts/
+
 %end
 
 %post
@@ -375,62 +445,65 @@ rpm -ivh /pdv_instalacao/FirebirdCS-2.5.8.27089-0.i686.rpm
 cp /pdv_instalacao/iniciar/firebird /etc/init.d/
 chmod 755 /etc/init.d/firebird
 cp /pdv_instalacao/iniciar/firebird.conf /opt/firebird/
-chkconfig --add /etc/init.d/firebird
+/sbin/chkconfig --add /etc/init.d/firebird
+
+# Alterando a senha do firebird para masterkey, necessidade do VRSoftware
+FIRE_PASS=`cat /opt/firebird/SYSDBA.password | grep ISC_PASSWD | cut -f2 -d\=`
+/opt/firebird/bin/gsec -user SYSDBA -password $FIRE_PASS -modify sysdba -pw masterkey
 
 # Subindo libs
 cp -r /pdv_instalacao/lib/* /usr/lib/
+# cp -r /pdv_instalacao/epson/* /usr/lib/ # nao usar, gera problema
 
 # Copinando as rules do udev
-cp -r /pdv_instalacao/iniciar/vr.rules /etc/udev/rules.d/
+cp /pdv_instalacao/iniciar/vr.rules /etc/udev/rules.d/
 cp /pdv_instalacao/iniciar/40-veridis-biometric.rules /etc/udev/rules.d/
 
 # Copiando os arquivos pra forcar a resolucao
-cp /pdv_instalacao/forceresolution.desktop /etc/xdg/autostart/
-cp /pdv_instalacao/forceresolution.sh /pdv/
+cp /pdv_instalacao/iniciar/forceresolution.desktop /etc/xdg/autostart/
+cp /pdv_instalacao/iniciar/forceresolution.sh /pdv/
+chmod 755 /pdv/forceresolution.sh
 
-%end
+# Configurando o script para executar o pdv
+cp /pdv_instalacao/iniciar/runpdv.sh /pdv/
+chmod 755 /pdv/runpdv.sh
 
-%post --nochroot
+# Sitef
+cp /pdv_instalacao/sitef/CliSiTef.ini /pdv/
 
-# only works on x86, x86_64
-if [ "$(uname -i)" = "i386" -o "$(uname -i)" = "x86_64" ]; then
-  if [ ! -d $LIVE_ROOT/LiveOS ]; then mkdir -p $LIVE_ROOT/LiveOS ; fi
-  cp /usr/bin/livecd-iso-to-disk $LIVE_ROOT/LiveOS
-fi
+# Alterando algumas permissoes
+chmod 755 /pdvinstall
+chmod 755 /usr/share/backgrounds/background.png
 
-# Criar estrutura do VRPdv
-mkdir $INSTALL_ROOT/pdv_vr
-mkdir $INSTALL_ROOT/SAT
-mkdir $INSTALL_ROOT/pdv
-mkdir -p $INSTALL_ROOT/vr
-mkdir -p $INSTALL_ROOT/pdv_instalacao
+# Criando usuario vr, senha padrao pdv
+/usr/sbin/useradd -m -c "Usuario VRPdv" -p '$6$rohQLKfs9HkywwrI$u2WnciAypHMx9hJoKySPWIpTa6xxMcjXWq/pKR3GT4wTVnyz.xKxLM.wBCPS/F2mA41UCKKa8pOGGkTsNuKNJ/' vr
+/usr/sbin/usermod -aG wheel vr > /dev/null
 
-# Copiando arquivos necessarios para a instalacao
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/pdv/* $INSTALL_ROOT/pdv/
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/lib $INSTALL_ROOT/pdv_instalacao/
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/epson $INSTALL_ROOT/pdv_instalacao/
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/sitef $INSTALL_ROOT/pdv_instalacao/
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/driver $INSTALL_ROOT/pdv_instalacao/
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/anydesk-4.0.0-1.fc24.i686.rpm $INSTALL_ROOT/pdv_instalacao/
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/FirebirdCS-2.5.8.27089-0.i686.rpm $INSTALL_ROOT/pdv_instalacao/
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar $INSTALL_ROOT/pdv_instalacao/
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user $INSTALL_ROOT/pdv_instalacao/
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/VRPdv.desktop $INSTALL_ROOT/pdv_instalacao/
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/pdvinstall $INSTALL_ROOT/
+# Corrindo permissões do /home/vr para o firebird
+chmod 775 /home/vr
 
-# Configurando um resolv.conf
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacao/resolv.conf $INSTALL_ROOT/etc/resolv.conf
+# Inserindo o anydesk icon no desktop, isso é necessario por causa do bug do anydesk -tray, que nao executa no fedora.
+mkdir -p /home/vr/Desktop
+chown -R vr: /home/vr/Desktop
+cp /pdv_instalacao/anydesk.desktop /home/vr/Desktop/
+chown vr: /home/vr/Desktop/anydesk.desktop
 
-# Copiando as definicoes de desktop para o /etc/skel
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/home_user/.* $INSTALL_ROOT/etc/skel/
+# Copiando os arquivos necessários para rodar o VRPdv, estes arquivos devem ser trocados para atualizar.
+cp /pdv_instalacao/VRPdv.jar /pdv/exec/
+cp /pdv_instalacao/VRFramework.jar /pdv/exec/lib/
+cp /pdv_instalacao/VRLib.jar /pdv/exec/lib/
+cp /pdv_instalacao/VR.FDB /pdv/database/
+cp /pdv_instalacao/vr.properties /vr/
+chmod 777 /pdv/database/VR.FDB
 
-# Copiando Background
-cp ~/Dados/fedora-vrsoftware/vrpdv_instalacaoimg/background.png $INSTALL_ROOT/usr/share/backgrounds/
+# Instalar o reset_printer.py
+cp /pdv_instalacao/iniciar/reset_printer.py /pdv/
+chmod 755 /pdv/reset_printer.py
 
-# Instalando fonts Microsoft
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/msttcore $INSTALL_ROOT/usr/share/fonts/
+# Trocar o plymouth
+/usr/sbin/plymouth-set-default-theme spinfinity -R
 
-# Configurando o sddm
-cp -r ~/Dados/fedora-vrsoftware/vrpdv_instalacao/iniciar/sddm.conf $INSTALL_ROOT/etc/sddm.conf
+# Removendo a pasta pdv_instalacao
+rm -rf /pdv_instalacao
 
 %end

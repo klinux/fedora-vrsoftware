@@ -1,0 +1,10 @@
+mock -r fedora-28-i386 --init
+mock -r fedora-28-i386 --install lorax-lmc-novirt vim-minimal pykickstart
+mock -r fedora-28-i386 --shell --old-chroot
+ksflatten --config fedora-live-soas.ks -o flat-fedora-live-soas.ks --version F28
+livemedia-creator --ks flat-fedora-live-lxqt.ks --no-virt --resultdir /var/lmc --project Fedora-lxqt-Live --make-iso --volid Fedora-LXQt-28 --iso-only --iso-name Fedora-LXQt-28-i386.iso --releasever 28 --title Fedora-LXQt-live --macboot
+mock -r fedora-28-i386 --clean
+grub2-mkconfig -o /boot/grub2/grub.cfg
+
+# Gerar o usb disk
+livecd-iso-to-disk --format --reset-mbr Fedora-LXQt-Live.iso /dev/sdc
